@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Registro de Consultas - UML León</title>
+  <style>
+    /* (mantengo tu CSS original) */
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(to bottom right, #e6f0ff, #ffffff);
+      background-attachment: fixed;
+      padding: 20px;
+      display: flex;
+      justify-content: center;
+    }
+    .container {
+      max-width: 800px;
+      width: 100%;
+      background-color: rgba(255, 255, 255, 0.95);
+      border-radius: 10px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      padding: 40px 30px;
+      box-sizing: border-box;
+    }
+    .logo-container {
+      margin: 0 auto 20px auto;
+      width: 120px;
+      text-align: center;
+    }
+    .logo-container img {
+      width: 120px;
+      height: auto;
+      display: block;
+    }
+    h1, h2 {
+      text-align: center;
+      color: #003366;
+      margin-bottom: 20px;
+    }
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+    label {
+      font-weight: bold;
+      color: #003366;
+    }
+    input, select, textarea, button {
+      padding: 10px;
+      font-size: 1em;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      width: 100%;
+      box-sizing: border-box;
+      transition: border-color 0.3s;
+    }
+    input:focus, select:focus, textarea:focus {
+      border-color: #0059b3;
+      outline: none;
+    }
+    textarea {
+      resize: vertical;
+      min-height: 80px;
+    }
+    button {
+      background-color: #004080;
+      color: white;
+      cursor: pointer;
+      max-width: 200px;
+      align-self: center;
+      border: none;
+      font-weight: bold;
+      border-radius: 6px;
+      transition: background-color 0.3s;
+    }
+    button:hover {
+      background-color: #0059b3;
+    }
+    .registro {
+      border-bottom: 1px solid #ccc;
+      padding: 12px 0;
+      margin-bottom: 15px;
+    }
+    .registro h3 {
+      font-size: 1.8em;
+      color: #003366;
+      margin: 0 0 8px 0;
+    }
+    .hidden {
+      display: none;
+    }
+    /* Modal ficha emergente */
+    #modalFicha {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.5);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+    #modalFicha.show {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    #contenidoFicha {
+      background: #f9f9f9;
+      border-radius: 10px;
+      box-shadow: 0 3px 15px rgba(0,0,0,0.25);
+      padding: 25px 30px;
+      width: 90%;
+      max-width: 400px;
+      color: #222;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      position: relative;
+    }
+    #contenidoFicha h3 {
+      margin-top: 0;
+      color: #004080;
+      border-bottom: 2px solid #004080;
+      padding-bottom: 6px;
+      font-weight: 700;
+      font-size: 1.8em;
+      text-align: center;
+    }
+    #contenidoFicha p {
+      margin: 8px 0;
+      font-size: 1em;
+    }
+    #contenidoFicha p strong {
+      color: #003366;
+    }
+    #contenidoFicha .nota {
+      font-weight: 700;
+      text-transform: uppercase;
+      margin-top: 20px;
+      color: #b30000;
+      text-align: center;
+      font-size: 0.95em;
+    }
+    #btnCerrarModal {
+      position: absolute;
+      top: 12px;
+      right: 15px;
+      background: transparent;
+      border: none;
+      font-size: 1.5em;
+      color: #004080;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    /* Responsive */
+    @media (max-width: 480px) {
+      .container {
+        padding: 30px 15px;
+      }
+      #contenidoFicha {
+        max-width: 100%;
+        padding: 20px;
+      }
+      button {
+        max-width: 100%;
+      }
+    }
+    /* Nuevo estilo para administrador */
+    #adminPanel {
+      margin-top: 20px;
+    }
+    #adminPanel h2 {
+      margin-bottom: 15px;
+    }
+    #adminList .registro {
+      cursor: default;
+      background: #e0f0ff;
+    }
+    #btnLogout {
+      background-color: #b30000;
+      margin-top: 10px;
+      max-width: 100px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container" id="userView">
+    <div class="logo-container">
+      <img src="logo.png" alt="Logo UML" />
+    </div>
+
+    <h1>Registro de Consultas Universidad Martín Lutero - León</h1>
+
+    <form id="matriculaForm" novalidate>
+      <label for="nombre">Nombre completo:</label>
+      <input type="text" id="nombre" required />
+
+      <label for="carrera">Carrera:</label>
+      <select id="carrera" required>
+        <option value="">Seleccione una carrera</option>
+        <option>Administración de Empresa</option>
+        <option>Farmacia</option>
+        <option>Pedagogía</option>
+        <option>Enfermería</option>
+        <option>Derecho</option>
+        <option>Psicología Clínica</option>
+        <option>Teología</option>
+        <option>Inglés</option>
+        <option>Periodismo</option>
+      </select>
+
+      <label for="codigo">Carnet de estudiante:</label>
+      <input type="text" id="codigo" placeholder="0000-0000-0000" pattern="[0-9]{4}-[0-9]{4}-[0-9]{4}" title="Formato: 0000-0000-0000" required />
+
+      <label for="area">Área donde se dirige:</label>
+      <select id="area" required>
+        <option value="">Seleccione un área</option>
+        <option value="Biblioteca">Biblioteca</option>
+        <option value="Registro Académico">Registro Académico</option>
+        <option value="Dirección">Dirección</option>
+        <option value="Contabilidad">Contabilidad</option>
+        <option value="Caja">Caja</option>
+        <option value="Laboratorio de Enfermería">Laboratorio de Enfermería</option>
+      </select>
+
+      <div id="opcionesExtras" class="hidden"></div>
+
+      <button type="submit">Registrar</button>
+    </form>
+
+    <hr />
+
+    <h2>Registros</h2>
+    <div id="registros"></div>
+
+    <button id="btnAdminLogin" style="margin-top:20px; max-width:200px;">Ingreso Administrador</button>
+  </div>
+
+  <!-- Modal ficha emergente -->
+  <div id="modalFicha" class="hidden">
+    <div id="contenidoFicha">
+      <button id="btnCerrarModal" title="Cerrar">&times;</button>
+    </div>
+  </div>
+
+  <!-- Panel administrador -->
+  <div class="container hidden" id="adminView">
+    <h1>Panel Administrador - Consultas Registradas</h1>
+    <div id="adminPanel">
+      <h2>Lista de Consultas</h2>
+      <div id="adminList"></div>
+      <button id="btnLogout">Cerrar sesión</button>
+    </div>
+  </div>
+
+<script>
+  const form = document.getElementById("matriculaForm");
+  const areaSelect = document.getElementById("area");
+  const opcionesExtras = document.getElementById("opcionesExtras");
+  const registrosDiv = document.getElementById("registros");
+
+  // Modal elementos
+  const modalFicha = document.getElementById("modalFicha");
+  const contenidoFicha = document.getElementById("contenidoFicha");
+  const btnCerrarModal = document.getElementById("btnCerrarModal");
+
+  // Admin elementos
+  const btnAdminLogin = document.getElementById("btnAdminLogin");
+  const adminView = document.getElementById("adminView");
+  const userView = document.getElementById("userView");
+  const adminList = document.getElementById("adminList");
+  const btnLogout = document.getElementById("btnLogout");
+
+  // Datos guardados en localStorage para persistencia simple
+  let registros = JSON.parse(localStorage.getItem("registros")) || [];
+
+  // Función para validar formato carnet
+  function validarCarnet(carnet) {
+    const regex = /^[0-9]{4}-[0-9]{4}-[0-9]{4}$/;
+    return regex.test(carnet);
+  }
+
+  // Función para renderizar registros en vista usuario
+  function renderRegistros() {
+    registrosDiv.innerHTML = "";
+    registros.forEach((reg, index) => {
+      const registroDiv = document.createElement("div");
+      registroDiv.classList.add("registro");
+
+      registroDiv.innerHTML = `
+        <h3>${reg.nombre}</h3>
+        <p><strong>Carrera:</strong> ${reg.carrera}</p>
+        <p><strong>Carnet:</strong> ${reg.codigo}</p>
+        <p><strong>Área:</strong> ${reg.area}</p>
+        <button data-index="${index}" class="btnVerFicha">Ver ficha</button>
+      `;
+
+      registrosDiv.appendChild(registroDiv);
+    });
+
+    // Agregar eventos para botones "Ver ficha"
+    const botonesFicha = document.querySelectorAll(".btnVerFicha");
+    botonesFicha.forEach((btn) => {
+      btn.addEventListener("click", (e) => {
+        const idx = e.target.getAttribute("data-index");
+        mostrarFicha(idx);
+      });
+    });
+  }
+
+  // Mostrar ficha modal con datos completos
+  function mostrarFicha(idx) {
+    const registro = registros[idx];
+    if (!registro) return;
+
+    const html = `
+      <h3>Ficha de Consulta</h3>
+      <p><strong>Nombre:</strong> ${registro.nombre}</p>
+      <p><strong>Carrera:</strong> ${registro.carrera}</p>
+      <p><strong>Carnet:</strong> ${registro.codigo}</p>
+      <p><strong>Área:</strong> ${registro.area}</p>
+      <p class="nota">La ficha solo tendrá validez con sello y firma de la administración.</p>
+    `;
+
+    contenidoFicha.innerHTML = `<button id="btnCerrarModal" title="Cerrar">&times;</button>` + html;
+    modalFicha.classList.add("show");
+    modalFicha.classList.remove("hidden");
+
+    // Cerrar modal
+    document.getElementById("btnCerrarModal").addEventListener("click", () => {
+      modalFicha.classList.remove("show");
+      setTimeout(() => modalFicha.classList.add("hidden"), 300);
+    });
+  }
+
+  // Validar el formulario
+  function validarFormulario() {
+    const nombre = document.getElementById("nombre").value.trim();
+    const carrera = document.getElementById("carrera").value;
+    const codigo = document.getElementById("codigo").value.trim();
+    const area = areaSelect.value;
+
+    if (!nombre || !carrera || !codigo || !area) {
+      alert("Por favor, complete todos los campos obligatorios.");
+      return false;
+    }
+    if (!validarCarnet(codigo)) {
+      alert("El formato del carnet es inválido. Use 0000-0000-0000");
+      return false;
+    }
+    return true;
+  }
+
+  // Guardar registro y actualizar vista
+  form.addEventListener("submit", (e) => {
+    e.preventDefault();
+
+    if (!validarFormulario()) return;
+
+    const nuevoRegistro = {
+      nombre: document.getElementById("nombre").value.trim(),
+      carrera: document.getElementById("carrera").value,
+      codigo: document.getElementById("codigo").value.trim(),
+      area: areaSelect.value,
+    };
+
+    registros.push(nuevoRegistro);
+    localStorage.setItem("registros", JSON.stringify(registros));
+
+    alert("Registro guardado exitosamente.");
+    form.reset();
+    renderRegistros();
+  });
+
+  // Inicializar vista registros
+  renderRegistros();
+
+  // Administrador - login simple
+  btnAdminLogin.addEventListener("click", () => {
+    const pass = prompt("Ingrese la clave de administrador:");
+    if (pass === "admin123") {
+      // Mostrar panel admin
+      userView.classList.add("hidden");
+      adminView.classList.remove("hidden");
+      renderAdminList();
+    } else if (pass !== null) {
+      alert("Clave incorrecta");
+    }
+  });
+
+  // Render lista en administrador
+  function renderAdminList() {
+    adminList.innerHTML = "";
+    if (registros.length === 0) {
+      adminList.innerHTML = "<p>No hay consultas registradas.</p>";
+      return;
+    }
+
+    registros.forEach((reg, i) => {
+      const div = document.createElement("div");
+      div.classList.add("registro");
+      div.innerHTML = `
+        <h3>${reg.nombre}</h3>
+        <p><strong>Carrera:</strong> ${reg.carrera}</p>
+        <p><strong>Carnet:</strong> ${reg.codigo}</p>
+        <p><strong>Área:</strong> ${reg.area}</p>
+      `;
+      adminList.appendChild(div);
+    });
+  }
+
+  // Cerrar sesión admin
+  btnLogout.addEventListener("click", () => {
+    adminView.classList.add("hidden");
+    userView.classList.remove("hidden");
+  });
+
+  // Opciones extras dependiendo del área seleccionada
+  areaSelect.addEventListener("change", () => {
+    opcionesExtras.innerHTML = "";
+    opcionesExtras.classList.add("hidden");
+    const area = areaSelect.value;
+    if (area === "Caja") {
+      opcionesExtras.innerHTML = `
+        <label for="motivo">Motivo de pago:</label>
+        <select id="motivo" required>
+          <option value="">Seleccione motivo</option>
+          <option>Pago de colegiatura</option>
+          <option>Pago de inscripción</option>
+          <option>Pago de material</option>
+          <option>Otro</option>
+        </select>
+      `;
+      opcionesExtras.classList.remove("hidden");
+    }
+  });
+
+</script>
+
+</body>
+</html>
