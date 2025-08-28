@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Registro de Consultas - UML León</title>
   <style>
-    /* (mantengo tu CSS original) */
     body {
       margin: 0;
       font-family: Arial, sans-serif;
@@ -92,7 +91,6 @@
     .hidden {
       display: none;
     }
-    /* Modal ficha emergente */
     #modalFicha {
       position: fixed;
       top: 0; left: 0; right: 0; bottom: 0;
@@ -156,7 +154,6 @@
       cursor: pointer;
       font-weight: bold;
     }
-    /* Responsive */
     @media (max-width: 480px) {
       .container {
         padding: 30px 15px;
@@ -169,7 +166,6 @@
         max-width: 100%;
       }
     }
-    /* Nuevo estilo para administrador */
     #adminPanel {
       margin-top: 20px;
     }
@@ -198,10 +194,10 @@
 
     <form id="matriculaForm" novalidate>
       <label for="nombre">Nombre completo:</label>
-      <input type="text" id="nombre" required />
+      <input type="text" id="nombre" name="nombre" required />
 
       <label for="carrera">Carrera:</label>
-      <select id="carrera" required>
+      <select id="carrera" name="carrera" required>
         <option value="">Seleccione una carrera</option>
         <option>Administración de Empresa</option>
         <option>Farmacia</option>
@@ -215,10 +211,10 @@
       </select>
 
       <label for="codigo">Carnet de estudiante:</label>
-      <input type="text" id="codigo" placeholder="0000-0000-0000" pattern="[0-9]{4}-[0-9]{4}-[0-9]{4}" title="Formato: 0000-0000-0000" required />
+      <input type="text" id="codigo" name="codigo" placeholder="0000-0000-0000" pattern="[0-9]{4}-[0-9]{4}-[0-9]{4}" title="Formato: 0000-0000-0000" required />
 
       <label for="area">Área donde se dirige:</label>
-      <select id="area" required>
+      <select id="area" name="area" required>
         <option value="">Seleccione un área</option>
         <option value="Biblioteca">Biblioteca</option>
         <option value="Registro Académico">Registro Académico</option>
@@ -236,19 +232,19 @@
     <hr />
 
     <h2>Registros</h2>
-    <div id="registros"></div>
+    <div id="registros">
+      <p>Los registros ahora se almacenan en la hoja de cálculo.</p>
+    </div>
 
     <button id="btnAdminLogin" style="margin-top:20px; max-width:200px;">Ingreso Administrador</button>
   </div>
 
-  <!-- Modal ficha emergente -->
   <div id="modalFicha" class="hidden">
     <div id="contenidoFicha">
       <button id="btnCerrarModal" title="Cerrar">&times;</button>
     </div>
   </div>
 
-  <!-- Panel administrador -->
   <div class="container hidden" id="adminView">
     <h1>Panel Administrador - Consultas Registradas</h1>
     <div id="adminPanel">
@@ -262,83 +258,17 @@
   const form = document.getElementById("matriculaForm");
   const areaSelect = document.getElementById("area");
   const opcionesExtras = document.getElementById("opcionesExtras");
-  const registrosDiv = document.getElementById("registros");
 
-  // Modal elementos
-  const modalFicha = document.getElementById("modalFicha");
-  const contenidoFicha = document.getElementById("contenidoFicha");
-  const btnCerrarModal = document.getElementById("btnCerrarModal");
+  // URL de tu Apps Script publicada como web app
+  const scriptURL = 'https://script.google.com/a/macros/uml.edu.ni/s/AKfycbw6H4ASir1sH0RYuA-JkOFhM4Y4uuxS13K6loY-7zqARL8ZezxqTBHju5QrsLzOGymeew/exec';
 
-  // Admin elementos
-  const btnAdminLogin = document.getElementById("btnAdminLogin");
-  const adminView = document.getElementById("adminView");
-  const userView = document.getElementById("userView");
-  const adminList = document.getElementById("adminList");
-  const btnLogout = document.getElementById("btnLogout");
-
-  // Datos guardados en localStorage para persistencia simple
-  let registros = JSON.parse(localStorage.getItem("registros")) || [];
-
-  // Función para validar formato carnet
+  // Validar formato carnet
   function validarCarnet(carnet) {
     const regex = /^[0-9]{4}-[0-9]{4}-[0-9]{4}$/;
     return regex.test(carnet);
   }
 
-  // Función para renderizar registros en vista usuario
-  function renderRegistros() {
-    registrosDiv.innerHTML = "";
-    registros.forEach((reg, index) => {
-      const registroDiv = document.createElement("div");
-      registroDiv.classList.add("registro");
-
-      registroDiv.innerHTML = `
-        <h3>${reg.nombre}</h3>
-        <p><strong>Carrera:</strong> ${reg.carrera}</p>
-        <p><strong>Carnet:</strong> ${reg.codigo}</p>
-        <p><strong>Área:</strong> ${reg.area}</p>
-        <button data-index="${index}" class="btnVerFicha">Ver ficha</button>
-      `;
-
-      registrosDiv.appendChild(registroDiv);
-    });
-
-    // Agregar eventos para botones "Ver ficha"
-    const botonesFicha = document.querySelectorAll(".btnVerFicha");
-    botonesFicha.forEach((btn) => {
-      btn.addEventListener("click", (e) => {
-        const idx = e.target.getAttribute("data-index");
-        mostrarFicha(idx);
-      });
-    });
-  }
-
-  // Mostrar ficha modal con datos completos
-  function mostrarFicha(idx) {
-    const registro = registros[idx];
-    if (!registro) return;
-
-    const html = `
-      <h3>Ficha de Consulta</h3>
-      <p><strong>Nombre:</strong> ${registro.nombre}</p>
-      <p><strong>Carrera:</strong> ${registro.carrera}</p>
-      <p><strong>Carnet:</strong> ${registro.codigo}</p>
-      <p><strong>Área:</strong> ${registro.area}</p>
-      <p class="nota">La ficha solo tendrá validez con sello y firma de la administración.</p>
-    `;
-
-    contenidoFicha.innerHTML = `<button id="btnCerrarModal" title="Cerrar">&times;</button>` + html;
-    modalFicha.classList.add("show");
-    modalFicha.classList.remove("hidden");
-
-    // Cerrar modal
-    document.getElementById("btnCerrarModal").addEventListener("click", () => {
-      modalFicha.classList.remove("show");
-      setTimeout(() => modalFicha.classList.add("hidden"), 300);
-    });
-  }
-
-  // Validar el formulario
+  // Validar formulario
   function validarFormulario() {
     const nombre = document.getElementById("nombre").value.trim();
     const carrera = document.getElementById("carrera").value;
@@ -356,71 +286,33 @@
     return true;
   }
 
-  // Guardar registro y actualizar vista
+  // Enviar formulario a Google Apps Script
   form.addEventListener("submit", (e) => {
     e.preventDefault();
 
     if (!validarFormulario()) return;
 
-    const nuevoRegistro = {
-      nombre: document.getElementById("nombre").value.trim(),
-      carrera: document.getElementById("carrera").value,
-      codigo: document.getElementById("codigo").value.trim(),
-      area: areaSelect.value,
-    };
+    const formData = new FormData(form);
 
-    registros.push(nuevoRegistro);
-    localStorage.setItem("registros", JSON.stringify(registros));
-
-    alert("Registro guardado exitosamente.");
-    form.reset();
-    renderRegistros();
+    fetch(scriptURL, {
+      method: "POST",
+      body: formData
+    })
+      .then(response => {
+        if (response.ok) {
+          alert("Registro enviado correctamente.");
+          form.reset();
+        } else {
+          alert("Error al enviar el registro. Intenta de nuevo.");
+        }
+      })
+      .catch(error => {
+        alert("Hubo un error al enviar el formulario.");
+        console.error("Error:", error);
+      });
   });
 
-  // Inicializar vista registros
-  renderRegistros();
-
-  // Administrador - login simple
-  btnAdminLogin.addEventListener("click", () => {
-    const pass = prompt("Ingrese la clave de administrador:");
-    if (pass === "admin123") {
-      // Mostrar panel admin
-      userView.classList.add("hidden");
-      adminView.classList.remove("hidden");
-      renderAdminList();
-    } else if (pass !== null) {
-      alert("Clave incorrecta");
-    }
-  });
-
-  // Render lista en administrador
-  function renderAdminList() {
-    adminList.innerHTML = "";
-    if (registros.length === 0) {
-      adminList.innerHTML = "<p>No hay consultas registradas.</p>";
-      return;
-    }
-
-    registros.forEach((reg, i) => {
-      const div = document.createElement("div");
-      div.classList.add("registro");
-      div.innerHTML = `
-        <h3>${reg.nombre}</h3>
-        <p><strong>Carrera:</strong> ${reg.carrera}</p>
-        <p><strong>Carnet:</strong> ${reg.codigo}</p>
-        <p><strong>Área:</strong> ${reg.area}</p>
-      `;
-      adminList.appendChild(div);
-    });
-  }
-
-  // Cerrar sesión admin
-  btnLogout.addEventListener("click", () => {
-    adminView.classList.add("hidden");
-    userView.classList.remove("hidden");
-  });
-
-  // Opciones extras dependiendo del área seleccionada
+  // Mostrar opciones extras para "Caja"
   areaSelect.addEventListener("change", () => {
     opcionesExtras.innerHTML = "";
     opcionesExtras.classList.add("hidden");
@@ -428,7 +320,7 @@
     if (area === "Caja") {
       opcionesExtras.innerHTML = `
         <label for="motivo">Motivo de pago:</label>
-        <select id="motivo" required>
+        <select id="motivo" name="motivo" required>
           <option value="">Seleccione motivo</option>
           <option>Pago de colegiatura</option>
           <option>Pago de inscripción</option>
@@ -439,7 +331,6 @@
       opcionesExtras.classList.remove("hidden");
     }
   });
-
 </script>
 
 </body>
