@@ -78,108 +78,8 @@
     button:hover {
       background-color: #0059b3;
     }
-    .registro {
-      border-bottom: 1px solid #ccc;
-      padding: 12px 0;
-      margin-bottom: 15px;
-    }
-    .registro h3 {
-      font-size: 1.8em;
-      color: #003366;
-      margin: 0 0 8px 0;
-    }
     .hidden {
       display: none;
-    }
-    #modalFicha {
-      position: fixed;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(0,0,0,0.5);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      z-index: 9999;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.3s ease;
-    }
-    #modalFicha.show {
-      opacity: 1;
-      pointer-events: auto;
-    }
-    #contenidoFicha {
-      background: #f9f9f9;
-      border-radius: 10px;
-      box-shadow: 0 3px 15px rgba(0,0,0,0.25);
-      padding: 25px 30px;
-      width: 90%;
-      max-width: 400px;
-      color: #222;
-      box-sizing: border-box;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      position: relative;
-    }
-    #contenidoFicha h3 {
-      margin-top: 0;
-      color: #004080;
-      border-bottom: 2px solid #004080;
-      padding-bottom: 6px;
-      font-weight: 700;
-      font-size: 1.8em;
-      text-align: center;
-    }
-    #contenidoFicha p {
-      margin: 8px 0;
-      font-size: 1em;
-    }
-    #contenidoFicha p strong {
-      color: #003366;
-    }
-    #contenidoFicha .nota {
-      font-weight: 700;
-      text-transform: uppercase;
-      margin-top: 20px;
-      color: #b30000;
-      text-align: center;
-      font-size: 0.95em;
-    }
-    #btnCerrarModal {
-      position: absolute;
-      top: 12px;
-      right: 15px;
-      background: transparent;
-      border: none;
-      font-size: 1.5em;
-      color: #004080;
-      cursor: pointer;
-      font-weight: bold;
-    }
-    @media (max-width: 480px) {
-      .container {
-        padding: 30px 15px;
-      }
-      #contenidoFicha {
-        max-width: 100%;
-        padding: 20px;
-      }
-      button {
-        max-width: 100%;
-      }
-    }
-    #adminPanel {
-      margin-top: 20px;
-    }
-    #adminPanel h2 {
-      margin-bottom: 15px;
-    }
-    #adminList .registro {
-      cursor: default;
-      background: #e0f0ff;
-    }
-    #btnLogout {
-      background-color: #b30000;
-      margin-top: 10px;
-      max-width: 100px;
     }
   </style>
 </head>
@@ -228,30 +128,6 @@
 
       <button type="submit">Registrar</button>
     </form>
-
-    <hr />
-
-    <h2>Registros</h2>
-    <div id="registros">
-      <p>Los registros ahora se almacenan en la hoja de cálculo.</p>
-    </div>
-
-    <button id="btnAdminLogin" style="margin-top:20px; max-width:200px;">Ingreso Administrador</button>
-  </div>
-
-  <div id="modalFicha" class="hidden">
-    <div id="contenidoFicha">
-      <button id="btnCerrarModal" title="Cerrar">&times;</button>
-    </div>
-  </div>
-
-  <div class="container hidden" id="adminView">
-    <h1>Panel Administrador - Consultas Registradas</h1>
-    <div id="adminPanel">
-      <h2>Lista de Consultas</h2>
-      <div id="adminList"></div>
-      <button id="btnLogout">Cerrar sesión</button>
-    </div>
   </div>
 
 <script>
@@ -260,7 +136,7 @@
   const opcionesExtras = document.getElementById("opcionesExtras");
 
   // URL de tu Apps Script publicada como web app
-  const scriptURL = 'https://script.google.com/a/macros/uml.edu.ni/s/AKfycbw6H4ASir1sH0RYuA-JkOFhM4Y4uuxS13K6loY-7zqARL8ZezxqTBHju5QrsLzOGymeew/exec';
+  const scriptURL = 'https://script.google.com/macros/s/AKfycbxvio5MAhfKjPdZhPcxcaeAdmTA-Izryorg9thBLo0cXoj0TkXw9LCJHeF2onRJLfrEcg/exec';
 
   // Validar formato carnet
   function validarCarnet(carnet) {
@@ -283,34 +159,15 @@
       alert("El formato del carnet es inválido. Use 0000-0000-0000");
       return false;
     }
+    if (area === "Caja") {
+      const motivo = document.getElementById("motivo");
+      if (!motivo || !motivo.value) {
+        alert("Por favor, seleccione un motivo de pago.");
+        return false;
+      }
+    }
     return true;
   }
-
-  // Enviar formulario a Google Apps Script
-  form.addEventListener("submit", (e) => {
-    e.preventDefault();
-
-    if (!validarFormulario()) return;
-
-    const formData = new FormData(form);
-
-    fetch(scriptURL, {
-      method: "POST",
-      body: formData
-    })
-      .then(response => {
-        if (response.ok) {
-          alert("Registro enviado correctamente.");
-          form.reset();
-        } else {
-          alert("Error al enviar el registro. Intenta de nuevo.");
-        }
-      })
-      .catch(error => {
-        alert("Hubo un error al enviar el formulario.");
-        console.error("Error:", error);
-      });
-  });
 
   // Mostrar opciones extras para "Caja"
   areaSelect.addEventListener("change", () => {
@@ -330,6 +187,36 @@
       `;
       opcionesExtras.classList.remove("hidden");
     }
+  });
+
+  // Enviar formulario a Google Apps Script
+  form.addEventListener("submit", (e) => {
+    e.preventDefault();
+
+    if (!validarFormulario()) return;
+
+    const formData = new FormData(form);
+
+    fetch(scriptURL, {
+      method: "POST",
+      body: formData
+    })
+    .then(response => response.text())
+    .then(text => {
+      if (text.trim() === "Éxito") {
+        alert("Registro enviado correctamente.");
+        form.reset();
+        opcionesExtras.innerHTML = "";
+        opcionesExtras.classList.add("hidden");
+      } else {
+        alert("Error al enviar el registro. Intenta de nuevo.");
+        console.error("Respuesta inesperada del servidor:", text);
+      }
+    })
+    .catch(error => {
+      alert("Hubo un error al enviar el formulario.");
+      console.error("Error:", error);
+    });
   });
 </script>
 
